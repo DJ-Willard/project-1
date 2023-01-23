@@ -92,7 +92,7 @@ def respond(sock):
     parts = request.split()
     if len(parts) > 1 and parts[0] == "GET":
         #get file name
-        file = parts[1]
+        file = parts[1].lstrip('/')
         #get configed dir for file cheack
         option = get_options()
         docroot = option.DOCROOT
@@ -101,6 +101,7 @@ def respond(sock):
         print(file)
         print(docroot)
         print(file_path)
+        print(os.path.exists(file_path))
         if ".." in file or "~" in file:
             transmit(STATUS_FORBIDDEN, sock)
             transmit("403 Forbidden characters in the request\n", sock)
