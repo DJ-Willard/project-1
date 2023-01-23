@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 
 import socket    # Basic TCP/IP communication on the internet
 import _thread   # Response computation runs concurrently with main program
-
+import os
 
 def listen(portnum):
     """
@@ -91,8 +91,22 @@ def respond(sock):
 
     parts = request.split()
     if len(parts) > 1 and parts[0] == "GET":
-        transmit(STATUS_OK, sock)
-        transmit(CAT, sock)
+        #get file name
+        file = parts[1].lstrip('/')
+        file_path = os.path.join(config.get('SERVER', 'DOCROOT'), file)
+        if ".." in file or "~" in file:
+            transmit(STATUS_FORBIDDEN, sock)
+            transmit("403 Forbidden characters in the request\n", sock)
+        elif os.path.exists(file_path):
+            #does the file exist in the pages director
+            with open(file_path, 'r') as f:
+                file_contents = f.read()
+                transmit(STATUS_OK, sock)
+                transmit(file_contents, sock)
+        else:
+            #no such file exists
+            transmit(STATUS_NOT_FOUND, sock)
+            transmit("404 File not found\n", sock)
     else:
         log.info("Unhandled request: {}".format(request))
         transmit(STATUS_NOT_IMPLEMENTED, sock)
