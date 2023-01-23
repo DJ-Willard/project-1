@@ -96,17 +96,12 @@ def respond(sock):
         #get configed dir for file cheack
         option = get_options()
         docroot = option.DOCROOT
-        #parse it
-        file_path = os.path.join(docroot, file)
-        print(file)
-        print(docroot)
-        print(file_path)
-        print(os.path.exists(file_path))
-        if ".." in file or "~" in file:
+        if  '..' in file or '~' in file:
             transmit(STATUS_FORBIDDEN, sock)
             transmit("403 Forbidden characters in the request\n", sock)
         else:
-
+            #parse it
+            file_path = os.path.join(docroot, file)
             if os.path.exists(file_path):
             #does the file exist in the pages director
                 with open(file_path, 'r') as f:
